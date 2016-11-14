@@ -5,13 +5,17 @@ const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 const TransferWebpackPlugin = require('transfer-webpack-plugin');
 
 const config = {
-  entry: [path.join(__dirname, '/src/app/app.js')],
+  entry: [path.join(__dirname, '/src/app/app.tsx')],
   // Render source-map file for final build
   devtool: 'source-map',
   // output config
   output: {
     path: buildPath, // Path of output file
     filename: 'app.js', // Name of output file
+  },
+  resolve: {
+    // Add '.ts' and '.tsx' as resolvable extensions.
+    extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
   },
   plugins: [
     // Define production build to allow React to strip out unnecessary checks
@@ -36,12 +40,14 @@ const config = {
   ],
   module: {
     loaders: [
-      {
-        test: /\.js$/, // All .js files
-        loaders: ['babel-loader'], // react-hot is like browser sync and babel loads jsx and es6-7
-        exclude: [nodeModulesPath],
-      },
+      // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
+      { test: /\.tsx?$/, loader: "ts-loader" }
     ],
+
+    preLoaders: [
+      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+      { test: /\.js$/, loader: "source-map-loader" }
+    ]
   },
 };
 
