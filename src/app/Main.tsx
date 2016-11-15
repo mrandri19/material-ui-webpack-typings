@@ -4,78 +4,83 @@
  */
 import * as React from 'react';
 
-import RaisedButton from 'material-ui/RaisedButton';
-import Dialog from 'material-ui/Dialog';
-import {deepOrange500} from 'material-ui/styles/colors';
-import FlatButton from 'material-ui/FlatButton';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-
-const styles = {
-  container: {
-    textAlign: 'center',
-    paddingTop: 200,
-  },
-};
-
+import { teal700, teal500, amber500, teal100 } from 'material-ui/styles/colors';
+import { MuiThemeProvider, getMuiTheme } from 'material-ui/styles';
+import { AppBar, Chip, RaisedButton, TextField } from 'material-ui';
+const INITIAL_BUDGET = 0;
 const muiTheme = getMuiTheme({
   palette: {
-    accent1Color: deepOrange500,
-  },
+    primary1Color: teal500,
+    primary2Color: teal700,
+    primary3Color: teal100,
+    accent1Color: amber500,
+  }
 });
 
+
 interface State {
-  open: boolean;
+  budget: number;
 }
 
 class Main extends React.Component<{}, State> {
-  constructor(props: any, context: any) {
-    super(props, context);
-
+  constructor() {
+    super();
     this.state = {
-      open: false,
-    };
+      budget: INITIAL_BUDGET
+    }
   }
 
-  handleRequestClose = () => {
-    this.setState({
-      open: false,
-    });
+  refs: {
+    outcome: HTMLInputElement;
+    income: HTMLInputElement;
   }
 
-  handleTouchTap = () => {
-    this.setState({
-      open: true,
-    });
+  componentDidUpdate(provProps: {}, prevState: State) {
+    // SEND REMOTE STATE UPDATE
+    console.log(this.state);
+  }
+
+  componentDidMount() {
+    // GET REMOTE STATE
+    console.log("Mounted :)");
+  }
+
+  handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    let outcome = ((this.refs.outcome as any).input.value);
+    let income = ((this.refs.income as any).input.value);
+
+    if (outcome || income) {
+      outcome = outcome || 0;
+      income = income || 0;
+
+      this.setState({
+        budget: this.state.budget + parseFloat(income) - parseFloat(outcome)
+      });
+    }
+
+    e.preventDefault();
   }
 
   render() {
-    const standardActions = (
-      <FlatButton
-        label="Ok"
-        primary={true}
-        onTouchTap={this.handleRequestClose}
-      />
-    );
-
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
-        <div style={styles.container}>
-          <Dialog
-            open={this.state.open}
-            title="DIOCANE"
-            actions={[standardActions]}
-            onRequestClose={this.handleRequestClose}
-          >
-            1-2-3-4-5
-          </Dialog>
-          <h1>Material-UI</h1>
-          <h2>example project</h2>
-          <RaisedButton
-            label="Super Secret Password"
-            secondary={true}
-            onTouchTap={this.handleTouchTap}
-          />
+        <div>
+          <AppBar
+            style={{ margin: 0 }}
+            title="Andrea's utils"
+            >
+          </AppBar>
+          <div style={{ margin: "1em" }}>
+            <h1>Soldi</h1>
+            <h2>Budget: {this.state.budget}</h2>
+            <form onSubmit={this.handleSubmit.bind(this)}>
+              <TextField ref="outcome" floatingLabelText="Soldi spesi" type="number" step="0.01"></TextField>
+              <br />
+              <TextField ref="income" floatingLabelText="Soldi guadagnati" type="number" step="0.01"></TextField>
+              <br />
+              <RaisedButton label="Inserisci" secondary={true} type="submit"></RaisedButton>
+            </form>
+          </div>
         </div>
       </MuiThemeProvider>
     );
