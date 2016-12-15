@@ -17,6 +17,11 @@
 
 <body>
   <div id="app"></div>
+  <script>
+    if('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 
   <!-- This script adds the Roboto font to our project. For more detail go to this site:  http://www.google.com/fonts#UsePlace:use/Collection:Roboto:400,300,500 -->
   <script>

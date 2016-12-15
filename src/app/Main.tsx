@@ -7,6 +7,8 @@ import * as React from 'react';
 import { teal700, teal500, amber500, teal100 } from 'material-ui/styles/colors';
 import { MuiThemeProvider, getMuiTheme } from 'material-ui/styles';
 import { AppBar, Chip, RaisedButton, TextField } from 'material-ui';
+import ActionAccountBalanceWallet from 'material-ui/svg-icons/action/account-balance-wallet'
+
 const INITIAL_BUDGET = 0;
 const muiTheme = getMuiTheme({
   palette: {
@@ -16,6 +18,8 @@ const muiTheme = getMuiTheme({
     accent1Color: amber500,
   }
 });
+
+let APP_STATE_LOCALSTORAGE = "app_state";
 
 
 interface State {
@@ -37,12 +41,20 @@ class Main extends React.Component<{}, State> {
 
   componentDidUpdate(provProps: {}, prevState: State) {
     // SEND REMOTE STATE UPDATE
-    console.log(this.state);
+    window.localStorage.setItem(APP_STATE_LOCALSTORAGE, JSON.stringify(this.state));
   }
 
   componentDidMount() {
     // GET REMOTE STATE
     console.log("Mounted :)");
+    try {
+      let newState: State | null = JSON.parse(window.localStorage.getItem(APP_STATE_LOCALSTORAGE));
+      if (newState) {
+        this.setState(newState);
+      }
+    } catch (error) {
+      return;
+    }
   }
 
   handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -56,10 +68,14 @@ class Main extends React.Component<{}, State> {
       this.setState({
         budget: this.state.budget + parseFloat(income) - parseFloat(outcome)
       });
+      (this.refs.income as any).input.value = "";
+      (this.refs.outcome as any).input.value = "";
     }
 
     e.preventDefault();
   }
+
+
 
   render() {
     return (
@@ -72,7 +88,7 @@ class Main extends React.Component<{}, State> {
           </AppBar>
           <div style={{ margin: "1em" }}>
             <h1>Soldi</h1>
-            <h2>Budget: {this.state.budget}</h2>
+            <h2><ActionAccountBalanceWallet style={{marginRight: "6px"}}/>Portafoglio: {this.state.budget.toFixed(2)}{"€"}</h2>
             <form onSubmit={this.handleSubmit.bind(this)}>
               <TextField ref="outcome" floatingLabelText="Soldi spesi" type="number" step="0.01"></TextField>
               <br />
